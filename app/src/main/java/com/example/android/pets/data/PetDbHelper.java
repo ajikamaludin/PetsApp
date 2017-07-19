@@ -12,6 +12,12 @@ import com.example.android.pets.data.PetContract.PetEntry;
 
 public class PetDbHelper extends SQLiteOpenHelper{
 
+
+    // If you change the database schema, you must increment the database version.
+    public static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "shalter.db";
+
+
     //CREATE TABLE pets (_id INTEGER PRIMARY KEY AUTOINCREMENT,
     // name TEXT NOT NULL,
     // breed TEXT,
@@ -28,10 +34,6 @@ public class PetDbHelper extends SQLiteOpenHelper{
 
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + PetEntry.TABLE_NAME;
-
-    // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "PetsReader.db";
 
     public PetDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
