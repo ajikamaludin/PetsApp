@@ -131,11 +131,11 @@ public class EditorActivity extends AppCompatActivity {
 
         if(ContentUris.parseId(id) == -1){
 
-            Toast.makeText(this, R.string.pet_saved_error, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.pet_saved_error), Toast.LENGTH_SHORT).show();
 
         }else{
 
-            Toast.makeText(this, R.string.pet_saved , Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.pet_saved), Toast.LENGTH_SHORT).show();
 
         }
 
