@@ -19,7 +19,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.PeriodicSync;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -29,14 +28,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
-import com.example.android.pets.data.PetDbHelper;
 
 /**
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
 
-    private PetDbHelper mDbHelper = new PetDbHelper(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +65,6 @@ public class CatalogActivity extends AppCompatActivity {
     private void displayDatabaseInfo() {
         // To access our database, we instantiate our subclass of SQLiteOpenHelper
         // and pass the context, which is the current activity.
-        PetDbHelper mDbHelper = new PetDbHelper(this);
-
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = { PetEntry._ID,
                 PetEntry.COLUMN_PET_NAME,
@@ -80,8 +73,14 @@ public class CatalogActivity extends AppCompatActivity {
                 PetEntry.COLUMN_PETS_WEIGHT,
         };
 
-        Cursor cursor = db.query(PetEntry.TABLE_NAME, projection,
-                null, null, null, null, null);
+        /*Cursor cursor = db.query(PetEntry.TABLE_NAME, projection,
+                null, null, null, null, null);*/
+
+        Cursor cursor = getContentResolver().query(
+                PetEntry.CONTENT_URI,
+                projection,
+                null,null,null);
+
 
         TextView displayView = (TextView) findViewById(R.id.text_view_pet);
 
@@ -130,8 +129,6 @@ public class CatalogActivity extends AppCompatActivity {
     }
 
     private void insertPet(){
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
@@ -141,7 +138,8 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PETS_WEIGHT, 7);
 
         // Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
+        getContentResolver().insert(PetEntry.CONTENT_URI,values);
+
     }
 
     @Override
