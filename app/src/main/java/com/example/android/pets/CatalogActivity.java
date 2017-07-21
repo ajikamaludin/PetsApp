@@ -25,6 +25,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
@@ -81,8 +82,13 @@ public class CatalogActivity extends AppCompatActivity {
                 projection,
                 null,null,null);
 
+        ListView petList = (ListView) findViewById(R.id.listpet);
 
-        TextView displayView = (TextView) findViewById(R.id.text_view_pet);
+        PetCursorAdapter petCursorAdapter = new PetCursorAdapter(this, cursor);
+
+        petList.setAdapter(petCursorAdapter);
+
+        /*TextView displayView = (TextView) findViewById(R.id.text_view_pet);
 
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
@@ -125,7 +131,7 @@ public class CatalogActivity extends AppCompatActivity {
             // Always close the cursor when you're done reading from it. This releases all its
             // resources and makes it invalid.
             cursor.close();
-        }
+        }*/
     }
 
     private void insertPet(){
