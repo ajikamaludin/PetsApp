@@ -60,4 +60,11 @@
     <string name="gender_female">Female</string>
     <string name="pet_saved">Pet Saved</string>
     <string name="pet_saved_error">Error with saving pet</string>
+
+    <!-- Title text for the empty view, which describes the empty dog house image [CHAR LIMIT=50] -->
+    <string name="empty_view_title_text">Tidak ada hewan peliharaan di sini...</string>
+
+    <!-- Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] -->
+    <string name="empty_view_subtitle_text">Mulailah dengan menambahkan hewan peliharaan</string>
+
 </resources>
