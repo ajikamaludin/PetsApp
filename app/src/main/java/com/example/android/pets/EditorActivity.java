@@ -115,7 +115,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         });
     }
 
-    private void insertPet(){
+    private void savePet(){
 
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
@@ -128,18 +128,32 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(PetContract.PetEntry.COLUMN_PETS_GENDER, mGender);
         values.put(PetContract.PetEntry.COLUMN_PETS_WEIGHT, weight);
 
-        Uri id = getContentResolver().insert(PetEntry.CONTENT_URI,values);
+        if (mcurrentPetUri == null){
 
-        if(ContentUris.parseId(id) == -1){
+            Uri id = getContentResolver().insert(PetEntry.CONTENT_URI,values);
+            if(ContentUris.parseId(id) == -1){
 
-            Toast.makeText(this, getString(R.string.pet_saved_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.pet_saved_error), Toast.LENGTH_SHORT).show();
+
+            }else{
+
+                Toast.makeText(this, getString(R.string.pet_saved), Toast.LENGTH_SHORT).show();
+
+            }
 
         }else{
 
-            Toast.makeText(this, getString(R.string.pet_saved), Toast.LENGTH_SHORT).show();
+            int id = getContentResolver().update(mcurrentPetUri, values,null,null);
+            if(id == -1){
 
+                Toast.makeText(this, getString(R.string.pet_update_error), Toast.LENGTH_SHORT).show();
+
+            }else{
+
+                Toast.makeText(this, getString(R.string.pet_update), Toast.LENGTH_SHORT).show();
+
+            }
         }
-
     }
 
     @Override
@@ -157,7 +171,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 // Insert Pet to Database
-                insertPet();
+                savePet();
                 // back to catalog activity
                 finish();
                 return true;

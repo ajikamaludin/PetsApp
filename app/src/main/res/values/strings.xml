@@ -67,5 +67,7 @@
     <!-- Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] -->
     <string name="empty_view_subtitle_text">Mulailah dengan menambahkan hewan peliharaan</string>
     <string name="editor_activity_title_edit_pet">Edit Pet</string>
+    <string name="pet_update">Pet Updated</string>
+    <string name="pet_update_error">Pet Update Error</string>
 
 </resources>
