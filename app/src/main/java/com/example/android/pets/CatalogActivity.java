@@ -15,10 +15,12 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.PeriodicSync;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.app.LoaderManager;
@@ -29,10 +31,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
+
+import static android.widget.AdapterView.*;
 
 /**
  * Displays list of pets that were entered and stored in the app.
@@ -64,6 +69,20 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         mAdapter = new PetCursorAdapter(this, null);
         petListView.setAdapter(mAdapter);
+
+        petListView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+
+                Uri currentPetUri = ContentUris.withAppendedId(PetEntry.CONTENT_URI, id);
+
+                intent.setData(currentPetUri);
+
+                startActivity(intent);
+
+            }
+        });
 
         getLoaderManager().initLoader(PET_LOADER, null, this);
 
