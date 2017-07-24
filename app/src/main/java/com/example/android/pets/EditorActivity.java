@@ -120,7 +120,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
         String weightString = mWeightEditText.getText().toString().trim();
-        int weight = Integer.parseInt(weightString);
+        int weight = 0;
+        if (!TextUtils.isEmpty(weightString)) {
+            weight = Integer.parseInt(weightString);
+        }
 
         ContentValues values = new ContentValues();
         values.put(PetContract.PetEntry.COLUMN_PET_NAME, nameString);
@@ -128,8 +131,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(PetContract.PetEntry.COLUMN_PETS_GENDER, mGender);
         values.put(PetContract.PetEntry.COLUMN_PETS_WEIGHT, weight);
 
-        if (mcurrentPetUri == null){
+        if (mcurrentPetUri == null &&
+                TextUtils.isEmpty(nameString) &&
+                TextUtils.isEmpty(breedString) &&
+                TextUtils.isEmpty(weightString) &&
+                mGender == PetEntry.GENDER_UNKNOWN) {
 
+            return;
+
+        } else if(mcurrentPetUri == null ) {
             Uri id = getContentResolver().insert(PetEntry.CONTENT_URI,values);
             if(ContentUris.parseId(id) == -1){
 
@@ -141,7 +151,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             }
 
-        }else{
+        } else {
 
             int id = getContentResolver().update(mcurrentPetUri, values,null,null);
             if(id == -1){
