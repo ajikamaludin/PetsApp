@@ -157,12 +157,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private void deletePet() {
 
         int id = getContentResolver().delete(mcurrentPetUri,null,null);
-        if (id != -1){
+        if (id == 0){
+            Toast.makeText(this, getString(R.string.editor_delete_pet_failed), Toast.LENGTH_SHORT).show();
+        }else{
             Toast.makeText(this, getString(R.string.editor_delete_pet_successful), Toast.LENGTH_SHORT).show();
-            finish();
         }
+        finish();
 
     }
+
     //show unsave changes dialog
     private void showUnsavedChangesDialog(
             DialogInterface.OnClickListener discardButtonClickListener){
