@@ -2,6 +2,7 @@ package com.example.android.pets;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,10 +11,12 @@ import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -45,6 +48,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private Uri mcurrentPetUri;
 
+    private boolean mPetHasChanged = false;
+
     /**
      * Gender of the pet. The possible values are:
      * 0 for unknown gender, 1 for male, 2 for female.
@@ -61,6 +66,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         if(mcurrentPetUri == null){
             setTitle(getString(R.string.editor_activity_title_new_pet));
+            invalidateOptionsMenu();
         } else {
             setTitle(getString(R.string.editor_activity_title_edit_pet));
             getLoaderManager().initLoader(EXISTING_PET_LOADER, null, this);
@@ -72,8 +78,70 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
 
+        //set touch listener
+        mNameEditText.setOnTouchListener(mTouchListener);
+        mBreedEditText.setOnTouchListener(mTouchListener);
+        mWeightEditText.setOnTouchListener(mTouchListener);
+        mGenderSpinner.setOnTouchListener(mTouchListener);
+
         setupSpinner();
 
+    }
+
+    //anonymous touch listener
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mPetHasChanged = true;
+            return false;
+        }
+    };
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        if(mcurrentPetUri == null){
+            MenuItem menuItem = menu.findItem(R.id.action_delete);
+            menuItem.setVisible(false);
+
+        }
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!mPetHasChanged){
+            super.onBackPressed();
+            return;
+        }
+
+        DialogInterface.OnClickListener discardButtonClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                };
+        showUnsavedChangesDialog(discardButtonClickListener);
+
+    }
+
+    //show unsave changes dialog
+    private void showUnsavedChangesDialog(
+            DialogInterface.OnClickListener discardButtonClickListener){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.unsaved_changes_dialog_msg);
+        builder.setPositiveButton(R.string.discard, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(dialog != null){
+                    dialog.dismiss();
+                }
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     /**
@@ -116,11 +184,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     private void savePet(){
-
+        //gettext from form input
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
         String weightString = mWeightEditText.getText().toString().trim();
         int weight = 0;
+
+        //jangan parse ke interger kalau weightString masih null
         if (!TextUtils.isEmpty(weightString)) {
             weight = Integer.parseInt(weightString);
         }
@@ -131,6 +201,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(PetContract.PetEntry.COLUMN_PETS_GENDER, mGender);
         values.put(PetContract.PetEntry.COLUMN_PETS_WEIGHT, weight);
 
+        //jangan simpan value jika kosong dan kembalilah termasuk ketika pengeditan
         if (mcurrentPetUri == null &&
                 TextUtils.isEmpty(nameString) &&
                 TextUtils.isEmpty(breedString) &&
@@ -139,7 +210,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             return;
 
-        } else if(mcurrentPetUri == null ) {
+        } else if(mcurrentPetUri == null ) { //save jika data baru
             Uri id = getContentResolver().insert(PetEntry.CONTENT_URI,values);
             if(ContentUris.parseId(id) == -1){
 
@@ -151,7 +222,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             }
 
-        } else {
+        } else {    // save untuk edit
 
             int id = getContentResolver().update(mcurrentPetUri, values,null,null);
             if(id == -1){
@@ -192,7 +263,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Respond to a click on the "Up" arrow button in the app bar
             case android.R.id.home:
                 // Navigate back to parent activity (CatalogActivity)
-                NavUtils.navigateUpFromSameTask(this);
+                if(!mPetHasChanged){
+                    NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    return true;
+                }
+
+                DialogInterface.OnClickListener discardButtonClickListener =
+                        new DialogInterface.OnClickListener(){
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                            }
+                        };
+                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -200,6 +284,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        //query select
         String[] projection = { PetEntry._ID,
                 PetEntry.COLUMN_PET_NAME,
                 PetEntry.COLUMN_PET_BREED,
@@ -207,6 +293,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 PetEntry.COLUMN_PETS_GENDER
         };
 
+        //return cursor
         return new CursorLoader(this,
                 mcurrentPetUri,
                 projection,

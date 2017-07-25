@@ -69,5 +69,8 @@
     <string name="editor_activity_title_edit_pet">Edit Pet</string>
     <string name="pet_update">Pet Updated</string>
     <string name="pet_update_error">Pet Update Error</string>
+    <string name="unsaved_changes_dialog_msg">Anda Yakin ingin meninggalkan editor sebelum menyimpan</string>
+    <string name="discard">Discard</string>
+    <string name="keep_editing">Keep Editing</string>
 
 </resources>
